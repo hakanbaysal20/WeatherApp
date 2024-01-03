@@ -61,6 +61,15 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets:
+    - asset/image/
+
+  fonts:
+    - family: SFPRO
+      fonts:
+        - asset: asset/fonts/sfpro.ttf
+        - asset: asset/fonts/sfpro-semibold.OTF
+          weight: 500
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

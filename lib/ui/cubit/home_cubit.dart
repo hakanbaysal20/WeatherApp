@@ -1,7 +1,6 @@
 
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:weather_app/core/model/namaz_model.dart';
 import 'package:weather_app/core/model/weather_model.dart';
 import 'package:weather_app/core/repository/weather_repo.dart';
 
