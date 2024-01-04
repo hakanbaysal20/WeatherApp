@@ -13,5 +13,8 @@ class HomeCubit extends Cubit<List<WeatherModel>>{
     var list = await kRepo.getWeather();
     emit(list);
   }
-
+  Future<void> getWeatherDataByCity(String city) async{
+    var list = await kRepo.getWeatherByCity(city);
+    emit(list);
+  }
 }
