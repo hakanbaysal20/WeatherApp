@@ -1,5 +1,6 @@
-lib/core/*service
 
+
+lib/core/service
 # Miscellaneous
 *.class
 *.log
