@@ -119,7 +119,7 @@ class _HomeViewState extends State<HomeView> {
                                 padding: EdgeInsets.all(16.0),
                                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text("Next Forecast",style: TextStyle(color: Colors.white),),
+                                    Text("Sonraki tahmin",style: TextStyle(color: Colors.white),),
                                     Icon(Icons.calendar_month,color: Colors.white,),
                                   ],
                                 ),
