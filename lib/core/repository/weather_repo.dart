@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:weather_app/core/model/weather_model.dart';
 import 'package:weather_app/core/model/weather_response.dart';
-import 'package:weather_app/core/service/api_key.dart';
+import 'package:weather_app/core/service/api_key.g.dart';
 
 class WeatherRepository{
 

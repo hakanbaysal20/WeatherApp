@@ -1,6 +1,6 @@
 
 
-lib/core/service
+
 # Miscellaneous
 *.class
 *.log
@@ -13,6 +13,7 @@ lib/core/service
 .svn/
 migrate_working_dir/
 
+*.g.dart
 # IntelliJ related
 *.iml
 *.ipr
