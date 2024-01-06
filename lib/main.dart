@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:weather_app/core/repository/weather_repo.dart';
 import 'package:weather_app/ui/cubit/home_cubit.dart';
 import 'package:weather_app/ui/view/home.dart';
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => HomeCubit(),),
+        BlocProvider(create: (context) => HomeCubit(SampleWeatherRepository()),),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
