@@ -16,9 +16,11 @@ class WeatherLoading extends WeatherState{
 }
 class WeatherCompleted extends WeatherState{
   final List<WeatherModel> response;
+  final String city;
 
-  const WeatherCompleted(this.response);
+  const WeatherCompleted(this.response, this.city);
 }
+
 
 class WeatherError extends WeatherState{
   final String message;

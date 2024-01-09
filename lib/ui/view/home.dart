@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_app/core/constants/string_constants.dart';
-import 'package:weather_app/core/model/weather_model.dart';
 import 'package:weather_app/ui/cubit/home_cubit.dart';
 import 'package:weather_app/ui/cubit/weather_state.dart';
 
@@ -16,16 +15,17 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-
+  var cityList = StringConstants.cityList;
+  var selectedCity = "Ankara";
   @override
   void initState() {
     super.initState();
-    context.read<HomeCubit>().getWeatherData();
+    context.read<HomeCubit>().getWeather();
+    context.read<HomeCubit>().getCityFromLocation();
   }
   @override
   Widget build(BuildContext context) {
-    var cityList = StringConstants.cityList;
-    var selectedCity = "Ankara";
+
     return  Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -39,23 +39,33 @@ class _HomeViewState extends State<HomeView> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
-                      width: 200,
+                      width: 250,
                       height: 50,
-                      child: DropdownButtonFormField(
-                        dropdownColor: Colors.white10,
-                        decoration: const InputDecoration(border: InputBorder.none,icon: Icon(Icons.location_on_outlined,color: Colors.white,)),
-                        value: selectedCity,
-                        icon: const Icon(Icons.keyboard_arrow_down,color: Colors.white,),
-                        items: cityList.map((city){
-                        return DropdownMenuItem(
-                            value: city,
-                            child: Text(city,style: const TextStyle(  fontSize: 18,fontWeight: FontWeight.normal,color: Colors.white),));
-                      }).toList(), onChanged: (value) {
-                        setState(() {
-                          selectedCity = value!;
-                          context.read<HomeCubit>().getWeatherDataByCity(selectedCity);
-                        });
-                      },),
+                      child: BlocBuilder<HomeCubit,WeatherState>(
+                        builder: (context,state) {
+                          if(state is WeatherCompleted){
+                            return DropdownButtonFormField(
+                              dropdownColor: Colors.white10,
+                              decoration: const InputDecoration(border: InputBorder.none,icon: Icon(Icons.location_on_outlined,color: Colors.white,)),
+                              value: state.city,
+                              icon: const Icon(Icons.keyboard_arrow_down,color: Colors.white,),
+                              items: cityList.map((city){
+                                return DropdownMenuItem(
+                                    value: city,
+                                    child: Text(city,style: const TextStyle(  fontSize: 18,fontWeight: FontWeight.normal,color: Colors.white),));
+                              }).toList(), onChanged: (value) {
+                              setState(() {
+                                selectedCity = value!;
+                                context.read<HomeCubit>().getWeatherByCity(selectedCity);
+                              });
+                            },);
+
+                          }else{
+                            return const CircularProgressIndicator();
+                          }
+
+                        }
+                      ),
                     ),
                     IconButton(onPressed: () {
 
