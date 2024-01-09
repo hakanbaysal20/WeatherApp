@@ -1,22 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:weather_app/core/components/widget/custom_text_widget.dart';
+import 'package:weather_app/core/constants/color_constants.dart';
 import 'package:weather_app/core/constants/string_constants.dart';
+import 'package:weather_app/core/enums/image_constants.dart';
 import 'package:weather_app/ui/cubit/home_cubit.dart';
 import 'package:weather_app/ui/cubit/weather_state.dart';
-
-
-
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
-
   @override
   State<HomeView> createState() => _HomeViewState();
 }
-
 class _HomeViewState extends State<HomeView> {
   var cityList = StringConstants.cityList;
-  var selectedCity = "Ankara";
+  var currentIndex = 0;
   @override
   void initState() {
     super.initState();
@@ -25,63 +23,56 @@ class _HomeViewState extends State<HomeView> {
   }
   @override
   Widget build(BuildContext context) {
-
+    final double screenWidth = MediaQuery.of(context).size.width;
     return  Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          decoration: const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF08244F),Color(0xFF134CB5),Color(0xFF0B42AB)],begin: AlignmentDirectional.topCenter,end: AlignmentDirectional.bottomCenter)),
+          decoration: const BoxDecoration(gradient: ColorConstants.backgroundColor),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 250,
-                      height: 50,
-                      child: BlocBuilder<HomeCubit,WeatherState>(
-                        builder: (context,state) {
-                          if(state is WeatherCompleted){
-                            return DropdownButtonFormField(
-                              dropdownColor: Colors.white10,
-                              decoration: const InputDecoration(border: InputBorder.none,icon: Icon(Icons.location_on_outlined,color: Colors.white,)),
-                              value: state.city,
-                              icon: const Icon(Icons.keyboard_arrow_down,color: Colors.white,),
-                              items: cityList.map((city){
-                                return DropdownMenuItem(
-                                    value: city,
-                                    child: Text(city,style: const TextStyle(  fontSize: 18,fontWeight: FontWeight.normal,color: Colors.white),));
-                              }).toList(), onChanged: (value) {
-                              setState(() {
-                                selectedCity = value!;
-                                context.read<HomeCubit>().getWeatherByCity(selectedCity);
-                              });
-                            },);
+                child: BlocBuilder<HomeCubit,WeatherState>(
+                  builder: (context,state) {
+                    var selectedCity = "";
+                    if(state is WeatherCompleted){
+                      return SizedBox(
+                        width: 250,
+                        height: 50,
+                        child: DropdownButtonFormField(
+                          dropdownColor: ColorConstants.white10,
+                          decoration: const InputDecoration(border: InputBorder.none,icon: Icon(Icons.location_on_outlined,color: ColorConstants.white,)),
+                          value: state.city,
+                          icon: const Icon(Icons.keyboard_arrow_down,color: ColorConstants.white,),
+                          items: cityList.map((city){
+                            return DropdownMenuItem(
+                                value: city,
+                                child: Text(city,style: const TextStyle(  fontSize: 18,fontWeight: FontWeight.normal,color: ColorConstants.white),));
+                          }).toList(), onChanged: (value) {
+                            selectedCity = value!;
+                            context.read<HomeCubit>().getWeatherByCity(selectedCity);
+                        },),
+                      );
 
-                          }else{
-                            return const CircularProgressIndicator();
-                          }
-
-                        }
-                      ),
-                    ),
-                    IconButton(onPressed: () {
-
-                    }, icon: const Icon(Icons.notifications_none,color: Colors.white,))
-                  ],
+                    }else{
+                      return  SizedBox(width: screenWidth * 0.09,height: screenWidth * 0.09,child: const CircularProgressIndicator(color: ColorConstants.white,));
+                    }
+                  }
                 ),
               ),
               BlocBuilder<HomeCubit,WeatherState>(builder: (context, state) {
                 if(state is WeatherCompleted){
+                  var currentDay = state.response[currentIndex];
+                  var word = currentDay.description.toString();
+                  String description = word[0].toUpperCase() + word.substring(1);
                   return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.network(state.response.first.icon,width: 250,height: 150,),
-                      Text(double.parse(state.response.first.degree).toInt().toString(),style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 64,color: Colors.white),),
-                      Text(state.response.first.status,style: const TextStyle( fontSize: 18,fontWeight: FontWeight.normal,color: Colors.white),),
-                      Text("Max ${double.parse(state.response.first.max).toInt()}°  Min ${double.parse(state.response.first.min).toInt()}°",style: const TextStyle( fontSize: 18,fontWeight: FontWeight.normal,color: Colors.white),),
-
+                      Image.network(currentDay.icon,width: screenWidth * 0.6,height: screenWidth * 0.35,),
+                      Text("${double.parse(currentDay.degree).toInt()}",style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 64,color: ColorConstants.white),),
+                      Text(description,style: const TextStyle( fontSize: 18,fontWeight: FontWeight.normal,color: ColorConstants.white),),
+                      Text("Max ${double.parse(currentDay.max).toInt()}°  Min ${double.parse(currentDay.min).toInt()}°",style: const TextStyle( fontSize: 18,fontWeight: FontWeight.normal,color: ColorConstants.white),),
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Container(
@@ -94,23 +85,23 @@ class _HomeViewState extends State<HomeView> {
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(CupertinoIcons.moon,color: Colors.white,),
-                                    const SizedBox(width: 5,),
-                                    Text(state.response.first.night,style: const TextStyle( fontSize: 14,fontWeight: FontWeight.normal,color: Colors.white),),
+                                    const Icon(CupertinoIcons.moon,color: ColorConstants.white,),
+                                     SizedBox(width: screenWidth * 0.01),
+                                    Text(double.parse(currentDay.night).toInt().toString(),style: const TextStyle( fontSize: 14,fontWeight: FontWeight.normal,color: ColorConstants.white),),
                                   ],
                                 ),
                                 Row(
                                   children: [
-                                    Image.asset("asset/image/im_humidity2.png",color: Colors.white,height: 24,width: 24,),
-                                    const SizedBox(width: 5,),
-                                    Text(state.response.first.humidity,style: const TextStyle(fontSize: 14,fontWeight: FontWeight.normal,color: Colors.white),),
+                                    Image.asset(ImageConstants.humidity.toPng,color: ColorConstants.white,height: 24,width: 24,),
+                                    SizedBox(width: screenWidth * 0.01),
+                                    Text(currentDay.humidity,style: const TextStyle(fontSize: 14,fontWeight: FontWeight.normal,color: ColorConstants.white),),
                                   ],
                                 ),
-                                const Row(
+                                Row(
                                   children: [
-                                    Icon(Icons.air,color: Colors.white,),
-                                    SizedBox(width: 5,),
-                                    Text("20",style: TextStyle(fontSize: 14,fontWeight: FontWeight.normal,color: Colors.white),),
+                                    const Icon(Icons.air,color: ColorConstants.white,),
+                                    SizedBox(width: screenWidth * 0.01),
+                                    const Text("20",style: TextStyle(fontSize: 14,fontWeight: FontWeight.normal,color: ColorConstants.white),),
                                   ],
                                 ),
                               ],
@@ -125,18 +116,18 @@ class _HomeViewState extends State<HomeView> {
                               0xFF0E366C)),
                           child: Column(
                             children: [
-                              const Padding(
-                                padding: EdgeInsets.all(16.0),
+                               Padding(
+                                padding: const EdgeInsets.all(16.0),
                                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text("Sonraki tahmin",style: TextStyle(color: Colors.white),),
-                                    Icon(Icons.calendar_month,color: Colors.white,),
+                                    CustomTextWidget(text: StringConstants.nextForecast),
+                                    const Icon(Icons.calendar_month,color: ColorConstants.white,),
                                   ],
                                 ),
                               ),
                               SizedBox(
                                 width: double.infinity,
-                                height: 300,
+                                height: screenWidth * 0.7,
                                 child: ListView.builder(
                                   itemCount: state.response.length - 1,
                                   itemBuilder: (context, index) {
@@ -144,18 +135,22 @@ class _HomeViewState extends State<HomeView> {
                                     return Padding(
                                       padding: const EdgeInsets.only(right: 16.0,left: 16.0,bottom: 16.0),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          SizedBox(width: 110,child: Text(nextForecast.day.toString(),textAlign: TextAlign.start,style: const TextStyle(color: Colors.white),)),
-                                          Image.network(nextForecast.icon,width: 24,height: 24,),
-                                          SizedBox(width:110,child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                            children: [
-
-                                              Text("${double.parse(nextForecast.max).toInt()}°",textAlign: TextAlign.end,style: const TextStyle(color: Colors.white),),
-                                              Text("${double.parse(nextForecast.night).toInt()}°",textAlign: TextAlign.end,style: const TextStyle(color: Colors.white60),)
-                                            ],
-                                          )),
+                                          Expanded(
+                                             flex: 4,
+                                             child: Text(nextForecast.day.toString(),textAlign: TextAlign.start,style: const TextStyle(color: ColorConstants.white),)),
+                                          Expanded(
+                                              flex: 4,
+                                              child: Image.network(nextForecast.icon,width: screenWidth * 0.06,height: screenWidth * 0.06,)),
+                                          Expanded(
+                                            flex: 3,
+                                            child: Row(
+                                              children: [
+                                                Expanded(child: Text("${double.parse(nextForecast.max).toInt()}°",textAlign: TextAlign.end,style: const TextStyle(color: ColorConstants.white),)),
+                                                Expanded(child: Text("${double.parse(nextForecast.night).toInt()}°",textAlign: TextAlign.end,style:  const TextStyle(color: ColorConstants.white60),))
+                                              ],
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     );
@@ -169,14 +164,14 @@ class _HomeViewState extends State<HomeView> {
                     ],
                   );
                 }else if(state is WeatherInitial){
-                  return const Center(
-                    child: Text("Hello"),
+                  return  Center(
+                    child: CustomTextWidget(text: StringConstants.hello),
                   );
                 }else if(state is WeatherLoading){
-                 return Center(child: CircularProgressIndicator());
+                 return Center(child: CustomTextWidget(text: StringConstants.loading));
                 }else{
                   final error = state as WeatherError;
-                  return Text(error.message);
+                  return CustomTextWidget(text:error.message);
                 }
 
               },),
@@ -185,11 +180,8 @@ class _HomeViewState extends State<HomeView> {
           ),
         ),
       ),
-
-
-
-
-
     );
   }
 }
+
+

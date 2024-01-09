@@ -11,7 +11,6 @@ class HomeCubit extends Cubit<WeatherState>{
   final WeatherRepository _weatherRepository;
   HomeCubit(this._weatherRepository):super(WeatherInitial());
 
-
   Future<String> getCityFromLocation() async {
     LocationPermission locationPermission = await Geolocator.checkPermission();
     if (locationPermission == LocationPermission.denied) {
@@ -34,8 +33,9 @@ class HomeCubit extends Cubit<WeatherState>{
     try{
       emit(WeatherInitial());
       final city = await getCityFromLocation();
-      Future.delayed(const Duration(milliseconds: 2000));
+      emit(WeatherLoading());
       final list = await _weatherRepository.getWeather(city);
+      Future.delayed(const Duration(milliseconds: 1000));
       emit(WeatherCompleted(list,city));
     } on NetworkError catch(e){
       emit(WeatherError(e.message));
@@ -45,8 +45,9 @@ class HomeCubit extends Cubit<WeatherState>{
   Future<void> getWeatherByCity(String city) async{
     try{
       emit(WeatherInitial());
-      Future.delayed(const Duration(milliseconds: 2000));
+      emit(WeatherLoading());
       final list = await _weatherRepository.getWeatherByCity(city);
+      Future.delayed(const Duration(milliseconds: 1000));
       emit(WeatherCompleted(list,city));
     } on NetworkError catch(e){
       emit(WeatherError(e.message));
